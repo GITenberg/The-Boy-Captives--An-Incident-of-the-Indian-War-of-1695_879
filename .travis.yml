@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: ksoodMjGr5Cl8YSYtyoM7mkvRdDGLAacU0eMmQV5S1BXONCHX5/yhna2nBeeeZIddXbz0AakrR4FUdsCj45UWK0PsGZpVrOmo36PTR+sOwB8eUQ6Ny2JeFYbJwHT7TBsLw5g6JWd/874myqJBsnfSAjMbIJ3jCtfAIzK4kP5zYPxSQGaUePrClMckXk+XPsr1Hi7lxa36KCmCvqhyWkH7UCY1V0yeeVjbWJIdMc2Sn+x9GIE/IQYOmJ2PBUUlqf+4qAHBdlECX/a5lmzRQGfrNnRvkGf+TzKyZAYJAawYJxcmjPh+7lDfBe5zT7x3mEeq7nuS9lukG6wwmm5utMeWEJ/flZN9jYl/6Qx0Wbc79rexdUcgOy4GbCwvUzXXgTPHpLgtRvzG57/oxuoLLkWyV4kDc4GFP2Y7JHwFMEIfkC9qdh2ig6m1qBXWz36OR4JRbuVPCQ8jYiUPfnXeBkzDTaiYsJwVxYig4o/NSIu7XuBZ+e0H5sKep4bAhb/ycoQBva+TyfFAIf3R5aJp6EnoOFYPhi8xxugPC9qefhi6ZYwI84VseQdhVCS9j0NtXGLHdnzquLtJoh/Cldn0uWgPo2I79KgjbH7cbi9KUYXeXPMfF2y5+gjng6EkK+3p08vA7ZTnLlADat1IhpNKI0mlD52AdgDSFgPzB8YCuO74/k=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Boy-Captives--An-Incident-of-the-Indian-War-of-1695_879
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
